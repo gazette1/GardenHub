@@ -1,0 +1,436 @@
+/* ============================================================================
+   GardenCam — style.css  (applies design.md: ABC Finals broadcast homage)
+   ============================================================================ */
+
+:root {
+  /* color */
+  --bg: #0a0a0b;
+  --surface-1: #141417;
+  --surface-2: #1c1c21;
+  --surface-3: #26262d;
+  --line: #33333b;
+  --text: #f7f7f8;
+  --text-dim: #a0a0aa;
+  --text-mute: #6b6b76;
+  --gold: #f5c518;
+  --gold-deep: #caa20f;
+  --live: #ff2d2d;
+  --nyk: #f58426;   /* team tab only */
+  --sas: #c4ced4;   /* team tab only */
+
+  /* motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-broadcast: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --font-disp: "Saira Condensed", "Oswald", "Arial Narrow", system-ui, sans-serif;
+  --font-ui: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--gold); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ------------------------------- HEADER ----------------------------------- */
+
+.hdr {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: linear-gradient(180deg, var(--surface-1), rgba(20, 20, 23, 0.96));
+  border-bottom: 1px solid var(--line);
+  padding: 14px 16px 12px;
+  backdrop-filter: blur(6px);
+}
+@media (min-width: 720px) { .hdr { padding: 16px 24px 14px; } }
+
+.hdr__top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.kicker {
+  font-family: var(--font-disp);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--gold);
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+  border-bottom: 2px solid var(--gold);
+  box-shadow: 0 10px 24px -16px var(--gold);
+  display: inline-block;
+}
+
+.wordmark {
+  font-family: var(--font-disp);
+  font-weight: 800;
+  font-size: 26px;
+  letter-spacing: 0.02em;
+  margin: 0;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.wordmark__cam { color: var(--gold); }
+
+.hdr__note {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+/* venue pills */
+.venues {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding-bottom: 2px;
+}
+.venues::-webkit-scrollbar { display: none; }
+
+.venue {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-family: var(--font-disp);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.22s var(--ease-out), background 0.22s var(--ease-out),
+    color 0.22s var(--ease-out), box-shadow 0.22s var(--ease-out);
+}
+.venue:hover { background: var(--surface-3); color: var(--text); }
+.venue--active {
+  background: linear-gradient(180deg, var(--gold), var(--gold-deep));
+  color: #1a1400;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold), 0 8px 26px -12px rgba(245, 197, 24, 0.6);
+  transform: translateY(-1px);
+}
+
+.hdr__credit {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--text-mute);
+}
+
+/* -------------------------------- STAGE ----------------------------------- */
+
+.stage {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px;
+}
+@media (min-width: 720px) { .stage { padding: 24px; } }
+
+/* ------------------------------- TILE base -------------------------------- */
+
+.tile {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface-1);
+  border: 1px solid var(--line);
+  padding: 0;
+}
+
+.tile__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  background: var(--surface-1);
+  transition: opacity 0.22s var(--ease-out);
+}
+.tile__img.is-down { opacity: 0; }
+
+/* broadcast scanline veneer (subtle) */
+.tile__scan {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background: repeating-linear-gradient(
+    0deg, #fff 0 1px, transparent 1px 3px
+  );
+}
+
+.tile__label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 18px 12px 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+  pointer-events: none;
+}
+
+/* ---------------------------- FEATURED tile ------------------------------- */
+
+.featured { margin-bottom: 14px; }
+
+.tile--featured {
+  border: 1px solid var(--line);
+  box-shadow: 0 20px 60px -30px rgba(0, 0, 0, 0.9);
+}
+
+/* LIVE badge */
+.livebadge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(10, 10, 11, 0.72);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.livebadge__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--live);
+  box-shadow: 0 0 8px var(--live);
+  animation: live-pulse 1.6s ease-in-out infinite;
+}
+.livebadge__txt {
+  font-family: var(--font-disp);
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--text);
+}
+.livebadge--down .livebadge__dot {
+  background: var(--text-mute);
+  box-shadow: none;
+  animation: none;
+}
+.livebadge--down .livebadge__txt { color: var(--text-mute); }
+
+@keyframes live-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+/* ----------------------- RECONNECTING overlay ----------------------------- */
+
+.reconnect {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #050506;
+}
+/* the `hidden` attr must beat the display:flex above, or the overlay never hides */
+.reconnect[hidden] { display: none; }
+.reconnect__static {
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background:
+    repeating-linear-gradient(0deg, #1a1a1f 0 2px, #0c0c0e 2px 4px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0 2px, transparent 2px 5px);
+  animation: static-shift 0.4s steps(3) infinite;
+}
+@keyframes static-shift {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(4px); }
+}
+.reconnect__txt {
+  position: relative;
+  font-family: var(--font-disp);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: rgba(10, 10, 11, 0.7);
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+}
+
+/* ------------------------------ SCORE BUG --------------------------------- */
+
+.scorebug {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 6;
+  display: flex;
+  align-items: stretch;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(10, 10, 11, 0.72);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 30px -10px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  animation: chyron-in 0.6s var(--ease-broadcast) both;
+  font-family: var(--font-disp);
+}
+
+@keyframes chyron-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.scorebug__tab {
+  width: 6px;
+  flex: 0 0 6px;
+}
+.scorebug__tab--home { background: var(--nyk); }
+.scorebug__tab--away { background: var(--sas); }
+
+.scorebug__cell {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 8px 14px;
+}
+.scorebug__cell + .scorebug__cell {
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.scorebug__abbr {
+  font-weight: 700;
+  font-size: 16px;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+.scorebug__score {
+  font-weight: 800;
+  font-size: clamp(28px, 5vw, 44px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+
+/* editable affordance + focus */
+.scorebug [contenteditable] {
+  outline: none;
+  border-radius: 4px;
+  padding: 0 3px;
+  border-bottom: 1px dotted rgba(255, 255, 255, 0.25);
+  cursor: text;
+  transition: background 0.12s var(--ease-out), box-shadow 0.12s var(--ease-out);
+}
+.scorebug [contenteditable]:hover { background: rgba(255, 255, 255, 0.06); }
+.scorebug [contenteditable]:focus {
+  background: var(--surface-3);
+  box-shadow: inset 0 0 0 2px var(--gold);
+  border-bottom-color: transparent;
+}
+
+/* ------------------------------- CAM TABS --------------------------------- */
+
+.cams {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin-bottom: 14px;
+}
+.cams::-webkit-scrollbar { display: none; }
+
+.cam {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text-dim);
+  font-family: var(--font-disp);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s var(--ease-out), color 0.12s var(--ease-out),
+    border-color 0.12s var(--ease-out);
+}
+.cam:hover { background: var(--surface-3); color: var(--text); }
+.cam--active {
+  background: var(--surface-3);
+  color: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold);
+}
+
+/* ------------------------------- GRID ------------------------------------- */
+
+.grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, 1fr); /* phone: 2-col */
+}
+@media (min-width: 720px) {
+  .grid {
+    /* desktop: fit as many >=220px columns as the venue has cams */
+    grid-template-columns: repeat(
+      min(var(--cam-count, 6), 6),
+      minmax(220px, 1fr)
+    );
+    justify-content: center;
+  }
+}
+
+.tile--thumb { cursor: pointer; }
+.tile--thumb:hover { border-color: var(--surface-3); transform: translateY(-2px); }
+.tile--thumb { transition: transform 0.12s var(--ease-out), border-color 0.12s var(--ease-out); }
+
+.tile--active {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold), 0 8px 30px -12px rgba(245, 197, 24, 0.4);
+}
+.tile--thumb .tile__label { font-size: 12px; padding: 14px 10px 7px; }
+.tile--thumb .reconnect__txt { font-size: 11px; }
+
+/* --------------------------- reduced motion ------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .livebadge__dot { animation: none; }
+  .scorebug { animation: none; }
+  .reconnect__static { animation: none; }
+  * { transition-duration: 0.01ms !important; }
+}

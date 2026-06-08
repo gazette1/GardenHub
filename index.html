@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GardenCam — NBA Finals Watch Party</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ============ HEADER ============ -->
+  <header class="hdr">
+    <div class="hdr__top">
+      <div class="hdr__brand">
+        <div class="kicker">NBA&nbsp;FINALS · GAME&nbsp;3</div>
+        <h1 class="wordmark">Garden<span class="wordmark__cam">Cam</span></h1>
+      </div>
+      <p class="hdr__note">2s refresh • feeds can be buggy</p>
+    </div>
+
+    <!-- venue pills injected by app.js -->
+    <nav class="venues" id="venues" aria-label="Watch-party venues"></nav>
+
+    <div class="hdr__credit">
+      Cameras:
+      <a href="https://webcams.nyctmc.org/map" target="_blank" rel="noopener noreferrer">NYC DOT</a>
+    </div>
+  </header>
+
+  <main class="stage">
+    <!-- ============ FEATURED ============ -->
+    <section class="featured" id="featured" aria-label="Featured camera">
+      <div class="tile tile--featured" id="featuredTile">
+        <img class="tile__img" id="featuredImg" alt="" />
+        <div class="tile__scan" aria-hidden="true"></div>
+
+        <!-- LIVE / RECONNECTING indicator -->
+        <div class="livebadge" id="liveBadge">
+          <span class="livebadge__dot"></span>
+          <span class="livebadge__txt">LIVE</span>
+        </div>
+
+        <!-- reconnecting overlay -->
+        <div class="reconnect" id="featuredReconnect" hidden>
+          <div class="reconnect__static" aria-hidden="true"></div>
+          <span class="reconnect__txt">RECONNECTING…</span>
+        </div>
+
+        <!-- bottom label -->
+        <div class="tile__label" id="featuredLabel"></div>
+
+        <!-- ============ SCORE BUG (chyron) ============ -->
+        <div class="scorebug" id="scorebug">
+          <span class="scorebug__tab scorebug__tab--home" id="tabHome"></span>
+          <span class="scorebug__cell">
+            <span class="scorebug__abbr" id="abbrHome" contenteditable="true"
+                  spellcheck="false" role="textbox" aria-label="Home team abbreviation"></span>
+            <span class="scorebug__score" id="scoreHome" contenteditable="true"
+                  spellcheck="false" inputmode="numeric" role="textbox" aria-label="Home score"></span>
+          </span>
+          <span class="scorebug__cell">
+            <span class="scorebug__score" id="scoreAway" contenteditable="true"
+                  spellcheck="false" inputmode="numeric" role="textbox" aria-label="Away score"></span>
+            <span class="scorebug__abbr" id="abbrAway" contenteditable="true"
+                  spellcheck="false" role="textbox" aria-label="Away team abbreviation"></span>
+          </span>
+          <span class="scorebug__tab scorebug__tab--away" id="tabAway"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CAM TABS ============ -->
+    <nav class="cams" id="cams" aria-label="Choose featured camera"></nav>
+
+    <!-- ============ THUMBNAIL GRID ============ -->
+    <section class="grid" id="grid" aria-label="All cameras"></section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
