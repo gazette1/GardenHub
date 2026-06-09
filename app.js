@@ -54,6 +54,13 @@ let activeVenue = 0; // default to Bryant Park tonight
 const API_BASE = "https://webcams.nyctmc.org/api/cameras";
 const imageUrl = (id) => `${API_BASE}/${id}/image?cacheAvoidance=${Date.now()}`;
 
+// Live score (added by request): auto-update the score bug from ESPN's public NBA
+// scoreboard. No key, CORS-open. Manual tap-edit still works as an override and
+// holds until the next poll corrects it. Set LIVE_SCORE = false for manual-only.
+const LIVE_SCORE = true;
+const SCORE_API = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard";
+const SCORE_POLL_MS = 20000;
+
 /* ------------------------------ APP STATE --------------------------------- */
 
 let liveCameras = null;   // cached array from /api/cameras, or null if it failed
@@ -391,6 +398,61 @@ function initScoreBug() {
   wireEditable(el.abbrAway, { kind: "abbr" });
 }
 
+/* ---------------------------- LIVE SCORE ---------------------------------- */
+/* Poll ESPN's public scoreboard, find the game matching the configured TEAMS,
+   and push the real score into the bug. Manual edits override between polls. */
+
+// allow NYK≈NY, SAS≈SA: match if either abbreviation is a prefix of the other
+function abbrAlias(appAbbr, espnAbbr) {
+  const a = String(appAbbr || "").toUpperCase();
+  const e = String(espnAbbr || "").toUpperCase();
+  if (a.length < 2 || e.length < 2) return false;
+  return a === e || a.startsWith(e) || e.startsWith(a);
+}
+
+function applyLiveScore(home, away) {
+  // never clobber a field the user is actively editing
+  if (document.activeElement !== el.scoreHome) el.scoreHome.textContent = String(home);
+  if (document.activeElement !== el.scoreAway) el.scoreAway.textContent = String(away);
+}
+
+function fetchLiveScore() {
+  if (!LIVE_SCORE) return;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 6000);
+
+  fetch(SCORE_API, { signal: ctrl.signal })
+    .then((r) => (r.ok ? r.json() : Promise.reject(new Error("bad status"))))
+    .then((data) => {
+      clearTimeout(timer);
+      const events = (data && data.events) || [];
+      for (const ev of events) {
+        const comp = ev.competitions && ev.competitions[0];
+        if (!comp) continue;
+        const cs = comp.competitors || [];
+        const home = cs.find((c) => c.homeAway === "home");
+        const away = cs.find((c) => c.homeAway === "away");
+        if (!home || !away) continue;
+
+        const ha = home.team && home.team.abbreviation;
+        const aa = away.team && away.team.abbreviation;
+        const direct = abbrAlias(TEAMS.home, ha) && abbrAlias(TEAMS.away, aa);
+        const swapped = abbrAlias(TEAMS.home, aa) && abbrAlias(TEAMS.away, ha);
+        if (!direct && !swapped) continue;
+
+        // orient the feed's scores onto the bug's home/away slots
+        const hScore = direct ? home.score : away.score;
+        const aScore = direct ? away.score : home.score;
+        applyLiveScore(parseInt(hScore, 10) || 0, parseInt(aScore, 10) || 0);
+        return;
+      }
+    })
+    .catch(() => {
+      clearTimeout(timer);
+      // network/CORS/no-game: leave the current (manual) values untouched
+    });
+}
+
 /* -------------------------------- INIT ------------------------------------ */
 
 function init() {
@@ -398,6 +460,11 @@ function init() {
   selectVenue(activeVenue, /*preserveFeatured*/ false); // instant curated paint
   fetchLiveCameras(); // background enrichment, non-blocking
   setInterval(tick, REFRESH_MS); // single global ticker for the app's life
+
+  if (LIVE_SCORE) {
+    fetchLiveScore(); // immediate first pull
+    setInterval(fetchLiveScore, SCORE_POLL_MS); // then poll for updates
+  }
 }
 
 init();
